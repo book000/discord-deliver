@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  discord-deliver:
+    image: book000/discord-deliver
+    env_file:
+      - discord-deliver.env
+
+  app:
+    build:
+      context: src
+    env_file:
+      - example.env
