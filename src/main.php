@@ -29,14 +29,16 @@ if (!$DISCORD_TOKEN) {
 
 // Discord Channel Id
 $requestUrl = substr($_SERVER['REQUEST_URI'], 1);
-if (empty($requestUrl) || strpos($requestUrl, '/') !== false || !is_numeric($requestUrl)) {
+$ENV_DISCORD_CHANNEL_ID = getenv("DISCORD_CHANNEL_ID");
+$isChannelIdIncludeUrl = !empty($requestUrl) && strpos($requestUrl, '/') === false && is_numeric($requestUrl);
+if (!$isChannelIdIncludeUrl && !$ENV_DISCORD_CHANNEL_ID) {
     http_response_code(404);
     exit(json_encode([
       "status" => false,
       "message" => "Invalid request"
     ]));
 }
-$DISCORD_CHANNEL_ID = $requestUrl;
+$DISCORD_CHANNEL_ID = $isChannelIdIncludeUrl ? $requestUrl : $ENV_DISCORD_CHANNEL_ID;
 
 // Get message
 $input = file_get_contents("php://input");

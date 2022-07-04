@@ -2,7 +2,8 @@ version: '3.8'
 
 services:
   discord-deliver:
-    image: book000/discord-deliver
+    #image: book000/discord-deliver
+    build: ../src
     env_file:
       - discord-deliver.env
 

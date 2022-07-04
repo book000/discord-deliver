@@ -6,7 +6,9 @@ Web server to send messages to Discord for use with Docker
 
 `discord-deliver.env`
 
-- `DISCORD_TOKEN`: Discord Bot Token
+- `DISCORD_TOKEN`: Discord Bot Token (required)
+- `DISCORD_CHANNEL_ID`: Default Discord Channel Id (optional)
+  - This value is used if the channel ID is not specified in the URL.
 
 ref: [example directory](example/)
 

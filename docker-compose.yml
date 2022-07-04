@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   discord-deliver:
-    image: book000/discord-deliver:v1.1.1
+    image: book000/discord-deliver:v1.2.0
     ports:
       - "8080:8080"
     env_file:
