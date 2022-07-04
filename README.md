@@ -1,7 +1,12 @@
-# live-recorder-by-streamlink
+# discord-deliver
 
-Record and download live movie by streamlink.  
-Works with Docker (Docker Compose).
+Web server to send messages to Discord for use with Docker
+
+## Configuration
+
+`discord-deliver.env`
+
+- `DISCORD_TOKEN`: Discord Bot Token
 
 ## Warning / Disclaimer
 
