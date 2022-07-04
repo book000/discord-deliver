@@ -1,3 +1,3 @@
 #!/bin/sh
 
-php -S 0.0.0.0:8080 main.php
+php -S 0.0.0.0:80 main.php
