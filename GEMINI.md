@@ -15,7 +15,14 @@
 - 日本語と英数字の間には半角スペースを入れる。
 
 ## プロジェクト概要
-- 目的: Web server to send messages to Discord for use with Docker
+Web server to send messages to Discord for use with Docker. Accepts JSON POST requests and forwards them to Discord channels via bot token.
+
+### 技術スタック
+- **言語**: PHP
+- **フレームワーク**: None (raw HTTP API)
+- **主要な依存関係**:
+  - runtime:
+    - PHP 7.2+
 
 ## コーディング規約
 - フォーマット: 既存設定（ESLint / Prettier / formatter）に従う。
@@ -23,9 +30,14 @@
 - コメント言語: 日本語
 - エラーメッセージ: 英語
 
-## 開発コマンド
+### 開発コマンド
 ```bash
-# README を確認してください
+# deploy
+Docker Compose - docker-compose.yml
+
+# runtime
+PHP with Docker container
+
 ```
 
 ## 注意事項
@@ -34,3 +46,10 @@
 - 既存のプロジェクトルールがある場合はそれを優先する。
 
 ## リポジトリ固有
+- **type**: Docker Service
+- **entry_point**: src/main.php
+**environment_variables:**
+  - DISCORD_TOKEN (required)
+  - DISCORD_CHANNEL_ID (optional)
+- **api_endpoint**: POST /{channel_id} with JSON body {content, embed}
+- **api_version**: Discord API v10

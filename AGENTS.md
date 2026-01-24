@@ -25,3 +25,10 @@
 - ログに機密情報を出力しない。
 
 ## リポジトリ固有
+- **type**: Docker Service
+- **entry_point**: src/main.php
+**environment_variables:**
+  - DISCORD_TOKEN (required)
+  - DISCORD_CHANNEL_ID (optional)
+- **api_endpoint**: POST /{channel_id} with JSON body {content, embed}
+- **api_version**: Discord API v10

@@ -13,7 +13,14 @@
 - 前提・仮定・不確実性を明示し、仮定を事実のように扱わない。
 
 ## プロジェクト概要
-- 目的: Web server to send messages to Discord for use with Docker
+Web server to send messages to Discord for use with Docker. Accepts JSON POST requests and forwards them to Discord channels via bot token.
+
+### 技術スタック
+- **言語**: PHP
+- **フレームワーク**: None (raw HTTP API)
+- **主要な依存関係**:
+  - runtime:
+    - PHP 7.2+
 
 ## 重要ルール
 - 会話言語: 日本語
@@ -42,25 +49,48 @@
 - TypeScript 使用時は `skipLibCheck` で回避しない。
 - 関数やインターフェースには docstring（JSDoc など）を記載する。
 
+### コーディング規約
+- **language**: PHP
+- **validation**: POST-only, application/json content-type validation
+- **error_handling**: HTTP status codes (405, 415, 500, 404, 400)
+- **security**: Requires DISCORD_TOKEN environment variable, optional DISCORD_CHANNEL_ID
+
 ## 相談ルール
 - Codex CLI: 実装レビュー、局所設計、整合性確認に使う。
 - Gemini CLI: 外部仕様や最新情報の確認に使う。
 - 他エージェントの指摘は黙殺せず、採用または理由を明記して不採用とする。
 
-## 開発コマンド
+### 開発コマンド
 ```bash
-# README を確認してください
+# deploy
+Docker Compose - docker-compose.yml
+
+# runtime
+PHP with Docker container
+
 ```
 
-## アーキテクチャと主要ファイル
+### プロジェクト構造
+**ルートファイル:**
+- `docker-compose.yml`
+
+**主要ディレクトリ:**
+- `src/`
+- `example/`
+
+**重要ファイル:**
+- `src/main.php`
 
 ## 実装パターン
+- 既存のコードパターンに従う。
+- プロジェクト固有の実装ガイドラインがある場合はそれに従う。
 
 ## テスト
 - 方針: 変更内容に応じてテストを追加する。
 
 ## ドキュメント更新ルール
 - 更新タイミング: 実装確定後、同一コミットまたは追加コミットで更新する。
+- README、API ドキュメント、コメント等は常に最新状態を保つ。
 
 ## 作業チェックリスト
 
@@ -91,3 +121,10 @@
 6. PR 本文の崩れがないことを確認する。
 
 ## リポジトリ固有
+- **type**: Docker Service
+- **entry_point**: src/main.php
+**environment_variables:**
+  - DISCORD_TOKEN (required)
+  - DISCORD_CHANNEL_ID (optional)
+- **api_endpoint**: POST /{channel_id} with JSON body {content, embed}
+- **api_version**: Discord API v10
