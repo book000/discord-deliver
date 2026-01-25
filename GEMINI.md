@@ -39,7 +39,7 @@
 - **言語**: PHP 8
 - **ランタイム**: PHP CLI (built-in server)
 - **コンテナ化**: Docker (Alpine Linux ベース)
-- **設定管理**: 環境変数 (.env ファイル)
+- **設定管理**: 環境変数（`discord-deliver.env` / `example.env` などの `*.env` を `env_file` で読み込み）
 - **パッケージマネージャー**: なし（外部依存なし）
 - **CI/CD**: GitHub Actions
 - **依存関係更新**: Renovate
@@ -108,8 +108,12 @@ cd src && docker build . --file Dockerfile
   - `content`: プレーンテキストメッセージ
   - `embed`: 埋め込みメッセージオブジェクト（Discord の Embed 形式）
 - **エラーレスポンス**:
+  - `400 Bad Request`: リクエストボディが空など、リクエスト内容が不正な場合
+  - `404 Not Found`: チャンネル ID が不正または未指定の場合
   - `405 Method Not Allowed`: POST 以外のメソッドでリクエストした場合
   - `415 Unsupported Media Type`: `Content-Type` が `application/json` でない場合
+  - `500 Internal Server Error`: `DISCORD_TOKEN` が未設定など、サーバー内部エラーが発生した場合
+  - 上記以外のエラーについては、Discord API が返した HTTP ステータスコードとレスポンスをそのまま返します
 - **テスト方法**:
   - GitHub Actions で Docker イメージのビルドを検証
   - ShellCheck で `.sh` ファイルの Lint を実施

@@ -28,7 +28,7 @@
 - 言語: PHP 8
 - ランタイム: PHP CLI (built-in server)
 - コンテナ化: Docker (Alpine Linux ベース)
-- 設定管理: 環境変数 (.env ファイル)
+- 設定管理: 環境変数 (*.env ファイル, 例: discord-deliver.env)
 - パッケージマネージャー: なし (外部依存なし)
 - CI/CD: GitHub Actions
 

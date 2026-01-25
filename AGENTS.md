@@ -96,7 +96,7 @@ shellcheck src/entrypoint.sh
 
 ## セキュリティ / 機密情報
 
-- **認証情報のコミット禁止**: `DISCORD_TOKEN` などの認証情報は `.env` ファイルで管理し、Git にコミットしない
+- **認証情報のコミット禁止**: `DISCORD_TOKEN` などの認証情報は `discord-deliver.env` / `example.env` などの `*.env` ファイルで管理し、Git にコミットしない
 - **ログへの機密情報出力禁止**: 認証トークンやチャンネル ID をログに出力しない
 - **`.gitignore` の遵守**: `*.env` と `data/*` は Git 管理対象外
 

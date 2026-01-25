@@ -102,7 +102,7 @@ cd src && docker build . --file Dockerfile
 
 ### アーキテクチャサマリー
 
-- **src/main.php**: コア Web サーバーロジック（90 行）
+- **src/main.php**: コア Web サーバーロジック（小規模なファイル）
   - PHP built-in server で HTTP リクエストを処理
   - Discord Bot API への POST リクエストを実行
 - **src/Dockerfile**: PHP 8 Alpine コンテナ定義
@@ -224,5 +224,8 @@ discord-deliver/
   - `content`: プレーンテキストメッセージ
   - `embed`: 埋め込みメッセージオブジェクト
 - **エラーレスポンス**:
+  - 400: リクエストボディが存在しない場合
+  - 404: チャンネル ID が不正または未指定の場合
   - 405: POST 以外のメソッド
   - 415: `Content-Type` が `application/json` でない場合
+  - 500: `DISCORD_TOKEN` が未設定の場合
