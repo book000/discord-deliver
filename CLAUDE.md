@@ -229,3 +229,4 @@ discord-deliver/
   - 405: POST 以外のメソッド
   - 415: `Content-Type` が `application/json` でない場合
   - 500: `DISCORD_TOKEN` が未設定の場合
+  - 上記は代表的なアプリケーションレベルのエラーです。このほかに、Discord API から返却されたステータスコード (例: 401, 403, 429, 5xx など) が `http_response_code(...)` によりそのまま返される場合があります。

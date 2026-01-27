@@ -113,7 +113,7 @@ cd src && docker build . --file Dockerfile
   - `405 Method Not Allowed`: POST 以外のメソッドでリクエストした場合
   - `415 Unsupported Media Type`: `Content-Type` が `application/json` でない場合
   - `500 Internal Server Error`: `DISCORD_TOKEN` が未設定など、サーバー内部エラーが発生した場合
-  - 上記以外のエラーについては、Discord API が返した HTTP ステータスコードとレスポンスをそのまま返します
+  - 上記以外のエラーについては、Discord API が返した HTTP ステータスコードをそのまま返しつつ、レスポンスボディは `{status, message, response}` の形式でラップして返します
 - **テスト方法**:
   - GitHub Actions で Docker イメージのビルドを検証
   - ShellCheck で `.sh` ファイルの Lint を実施
