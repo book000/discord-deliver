@@ -1,93 +1,34 @@
-# GitHub Copilot Instructions
+# GitHub Copilot レビュー方針
 
-## プロジェクト概要
+GitHub Copilot によるコードレビュー時に重点的に確認すべき観点をまとめる。このファイルはレビュー基準であり、開発作業手順は `CLAUDE.md` を参照する。
 
-- 目的: Discord にメッセージを送信する軽量な Web サーバーブリッジ
-- 主な機能:
-  - POST リクエストで JSON ペイロードを受け取る
-  - Discord Bot API 経由で Discord チャンネルにメッセージを送信
-  - プレーンテキストと埋め込みメッセージ形式の両方をサポート
-  - 環境変数または URL パスでチャンネル ID を指定可能
-- 対象ユーザー: Discord Bot を利用したメッセージ配信を必要とする開発者
+## プロジェクト前提
 
-## 共通ルール
+- Discord にメッセージを送信する軽量な Web サーバーブリッジ。
+- 実装本体は `src/main.php` の単一 PHP スクリプト（PHP 8 の built-in server で動作、外部依存ゼロ）。
+- コンテナは Alpine ベースで、`src/entrypoint.sh` が `php -S 0.0.0.0:80` を起動する。
 
-- 会話は日本語で行う。
-- コミットメッセージは [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) に従う。
-  - 形式: `<type>(<scope>): <description>`
-  - `<description>` は日本語で記載
-  - 例: `feat: ユーザー認証機能を追加`
-- ブランチ命名は [Conventional Branch](https://conventional-branch.github.io) に従う。
-  - 形式: `<type>/<description>`
-  - `<type>` は短縮形（feat, fix）を使用
-  - 例: `feat/add-user-auth`
-- 日本語と英数字の間には半角スペースを入れる。
+## レビュー時の重点確認事項
 
-## 技術スタック
+- **機密情報の混入**: `DISCORD_TOKEN` やチャンネル ID がコード・ログ・レスポンス・コミットに直接埋め込まれていないか。`*.env` 経由の受け渡しになっているか。
+- **エラーハンドリングと HTTP ステータス**: 異常系で適切なステータスコード（400/404/405/415/500 など）と JSON ボディ（`{status, message}` 形式）を返しているか。`http_response_code()` の呼び出しが `exit`/レスポンス送出より前にあるか。
+- **Discord API 応答の扱い**: Discord API から返ったステータスコードをそのまま透過する既存挙動を壊していないか。`$http_response_header` のパース（ステータスコード抽出の正規表現）が壊れていないか。
+- **入力バリデーション**: リクエストボディの JSON パース失敗や空ボディ、チャンネル ID の妥当性チェックが維持されているか。URL 経由チャンネル ID の判定（数値のみ・パス区切りなし）が緩められていないか。
+- **外部依存の追加**: Composer 等の外部ライブラリ依存が新規に追加されていないか（このプロジェクトは依存ゼロ・軽量性維持が方針）。
+- **Docker / CI 整合性**: `src/Dockerfile` の `EXPOSE`・`entrypoint.sh` の待ち受けポート・`docker-compose.yml` のポートマッピングが相互に矛盾していないか。マルチプラットフォーム（linux/amd64, linux/arm64）ビルドを壊していないか。
 
-- 言語: PHP 8
-- ランタイム: PHP CLI (built-in server)
-- コンテナ化: Docker (Alpine Linux ベース)
-- 設定管理: 環境変数 (*.env ファイル, 例: discord-deliver.env)
-- パッケージマネージャー: なし (外部依存なし)
-- CI/CD: GitHub Actions
+## コーディング規約（レビューで確認する範囲）
 
-## コーディング規約
+- コード内コメントは日本語、エラーメッセージ（レスポンスの `message`）は英語。
+- 日本語と英数字の間は半角スペース。
+- 関数を新設した場合は日本語 docstring を付与しているか（現状 `main.php` はフラットスクリプトで関数を持たないため、関数導入時に適用）。
+- シェルスクリプトは ShellCheck を通す前提（CI では `SC2086`, `SC2001` を除外）。この 2 つの除外指摘は誤検知としてフラグしない。
 
-- コード内のコメント: 日本語で記載
-- エラーメッセージ: 英語で記載
-- 既存のコードスタイルに従う
-- 関数やクラスには docstring を日本語で記載
+## フラグ不要な既知パターン
 
-## 開発コマンド
+- `main.php` が関数分割されていない単一スクリプト構成であること自体は設計方針であり、過度な分割を要求しない。
+- 外部ライブラリ・フレームワーク未使用（標準関数のみ）は意図的な選択であり、ライブラリ導入を推奨しない。
 
-```bash
-# Docker イメージをビルド
-docker build src/ -t discord-deliver
+## ドキュメント整合性
 
-# docker-compose で起動（本番）
-docker-compose up
-
-# サンプル・テストを実行
-cd example && docker-compose up
-
-# シェルスクリプトの Lint
-shellcheck src/entrypoint.sh
-```
-
-## テスト方針
-
-- テストフレームワーク: GitHub Actions CI + ShellCheck
-- GitHub Actions で Docker イメージのビルド検証を実施
-- ShellCheck で `.sh` ファイルの Lint を実施（SC2086, SC2001 を除外）
-- `example/` ディレクトリで実際の動作確認が可能
-
-## セキュリティ / 機密情報
-
-- `DISCORD_TOKEN` などの認証情報は `.env` ファイルで管理し、Git にコミットしない。
-- `.gitignore` に `*.env` と `data/*` を追加済み。
-- ログに個人情報や認証情報を出力しない。
-
-## ドキュメント更新
-
-以下のファイルは変更時に更新が必要：
-
-- `README.md`: 機能追加や仕様変更時
-- `CHANGELOG.md`: バージョンアップ時（存在する場合）
-- `.github/workflows/*.yml`: CI/CD の変更時
-- `docker-compose.yml`: コンテナ構成の変更時
-
-## リポジトリ固有
-
-- このプロジェクトは Docker Hub に公開されている (`book000/discord-deliver`)。
-- マルチプラットフォームビルド (linux/amd64, linux/arm64) に対応。
-- Renovate により依存関係が自動更新される。**Renovate が作成した PR には追加コミットや更新を行わない。**
-- API エンドポイント:
-  - `POST /`: 環境変数 `DISCORD_CHANNEL_ID` を使用
-  - `POST /{channel_id}`: URL で指定したチャンネル ID を使用
-- リクエストボディ形式:
-  - `content`: プレーンテキストメッセージ
-  - `embed`: 埋め込みメッセージオブジェクト
-- 必須環境変数:
-  - `DISCORD_TOKEN`: Bot 認証トークン
-  - `DISCORD_CHANNEL_ID`: デフォルトチャンネル ID（オプション）
+- API エンドポイント・環境変数・リクエストボディ形式・エラーレスポンスを変更した場合、`README.md` と `CLAUDE.md` の該当記述が更新されているか。
