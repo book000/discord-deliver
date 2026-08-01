@@ -1,0 +1,4 @@
+discord-deliver.env
+example/discord-deliver.env
+example/example.env
+*.env
