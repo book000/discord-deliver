@@ -4,6 +4,6 @@ services:
   discord-deliver:
     image: book000/discord-deliver:v1.2.0
     ports:
-      - "8080:8080"
+      - "8080:80"
     env_file:
       - discord-deliver.env
