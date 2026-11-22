@@ -64,27 +64,42 @@ $header = [
   "User-Agent: discord-deliver (https://github.com/book000/discord-deliver)"
 ];
 
+// The timeout applies per socket wait (connect and each read), not to the whole exchange.
+const UPSTREAM_TIMEOUT_SECONDS = 10;
+
 $context = [
   "http" => [
     "method" => "POST",
     "header" => implode("\r\n", $header),
     "content" => json_encode($data),
-    "ignore_errors" => true
+    "ignore_errors" => true,
+    "timeout" => UPSTREAM_TIMEOUT_SECONDS
   ]
 ];
 $context = stream_context_create($context);
+$startedAt = microtime(true);
 $stream = @fopen("https://discord.com/api/channels/" . $DISCORD_CHANNEL_ID . "/messages", "r", false, $context);
 if ($stream === false) {
-    http_response_code(502);
+    $timedOut = microtime(true) - $startedAt >= UPSTREAM_TIMEOUT_SECONDS;
+    http_response_code($timedOut ? 504 : 502);
     exit(json_encode([
       "status" => false,
-      "message" => "Failed to send message",
+      "message" => $timedOut ? "Discord API request timed out" : "Failed to send message",
       "response" => null
     ]));
 }
 $headers = stream_get_meta_data($stream)["wrapper_data"];
 $contents = stream_get_contents($stream);
+$bodyTimedOut = stream_get_meta_data($stream)["timed_out"];
 fclose($stream);
+if ($bodyTimedOut) {
+    http_response_code(504);
+    exit(json_encode([
+      "status" => false,
+      "message" => "Discord API request timed out",
+      "response" => null
+    ]));
+}
 preg_match('/HTTP\/\S+ ([0-9]{3})/', $headers[0], $matches);
 $status_code = (int) ($matches[1] ?? 502);
 if ($status_code != 200) {

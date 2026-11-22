@@ -10,6 +10,10 @@ Web server to send messages to Discord for use with Docker
 - `DISCORD_CHANNEL_ID`: Default Discord Channel Id (optional)
   - This value is used if the channel ID is not specified in the URL.
 
+Container environment (optional):
+
+- `PHP_CLI_SERVER_WORKERS`: Number of worker processes of the PHP built-in server (default `8`). Set `1` to restore single-worker behavior.
+
 ref: [example directory](example/)
 
 ## Usage
@@ -36,6 +40,7 @@ The response is `{"status": true, "response": ...}` on success. On failure it is
 - 415: `Content-Type` is not `application/json`
 - 500: `DISCORD_TOKEN` is not set
 - 502: The Discord API could not be reached or returned an invalid HTTP status
+- 504: The Discord API sent no data for 10 seconds (the timeout applies to each wait, not to the whole request). The message may still have been delivered by Discord
 - Any other status returned by the Discord API (such as 401, 403, 429) is passed through, with the Discord response in `response`.
 
 ## Warning / Disclaimer
