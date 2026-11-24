@@ -29,12 +29,14 @@ curl -X POST -H "Content-Type: application/json" -d '{"content":"Hello, world!"}
 
 Request body (JSON, `Content-Type` must be `application/json`, optionally with parameters such as `charset=utf-8`):
 
-- `content`: plain text message
+- `content`: plain text message (string)
 - `embed`: a single Discord embed object
+
+The body must be a JSON object with non-empty `content` or a non-empty `embed`. When present, `content` must be a string and `embed` must be an object. Embed fields are validated by Discord.
 
 The response is `{"status": true, "response": ...}` on success. On failure it is `{"status": false, "message": ...}` with one of these HTTP status codes:
 
-- 400: empty request body
+- 400: empty or invalid request body, invalid field types, or no non-empty message
 - 404: the URL path is invalid, or no valid channel ID is available from the URL or `DISCORD_CHANNEL_ID`
 - 405: method other than `POST`
 - 415: `Content-Type` is not `application/json`

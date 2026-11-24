@@ -57,9 +57,31 @@ if (empty($input)) {
       "message" => "No body provided"
     ]));
 }
-$json = json_decode($input, true);
-$content = isset($json['content']) ? $json['content'] : null;
-$embed = isset($json['embed']) ? $json['embed'] : null;
+$json = json_decode($input);
+if (json_last_error() !== JSON_ERROR_NONE || !is_object($json)) {
+    http_response_code(400);
+    exit(json_encode([
+      "status" => false,
+      "message" => "Request body must be a JSON object"
+    ]));
+}
+if ((property_exists($json, 'content') && !is_string($json->content)) ||
+    (property_exists($json, 'embed') && !is_object($json->embed))) {
+    http_response_code(400);
+    exit(json_encode([
+      "status" => false,
+      "message" => "Content must be a string and embed must be an object"
+    ]));
+}
+$content = $json->content ?? null;
+$embed = $json->embed ?? null;
+if (($content === null || trim($content) === '') && ($embed === null || count((array) $embed) === 0)) {
+    http_response_code(400);
+    exit(json_encode([
+      "status" => false,
+      "message" => "A non-empty content or embed is required"
+    ]));
+}
 
 $data = [
   "content" => $content,
