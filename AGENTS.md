@@ -29,12 +29,13 @@ discord-deliver is a small web server that forwards JSON `POST` requests to the 
 
 ## Commands
 
-There is no `package.json`, linter config or test suite.
+There is no `package.json` or linter config.
 
 ```bash
 docker build src/ -t discord-deliver   # same as CI build check
 shellcheck -e SC2086,SC2001 src/entrypoint.sh example/src/entrypoint.sh
 php -l src/main.php                    # syntax check, if PHP is installed
+php tests/channel-id.php               # channel ID regression tests
 cd example && docker compose up        # manual end-to-end check against real Discord
 ```
 

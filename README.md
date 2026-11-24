@@ -21,7 +21,7 @@ ref: [example directory](example/)
 The container listens on port 80. Send a JSON `POST` request:
 
 - `POST /`: sends to the channel in `DISCORD_CHANNEL_ID`
-- `POST /{channel_id}`: sends to the channel given in the URL (a single numeric path segment). If the URL is not such a value, `DISCORD_CHANNEL_ID` is used instead
+- `POST /{channel_id}`: sends to the channel given in the URL (a single path segment containing decimal digits only). An invalid path is rejected. A URL with a query string uses `DISCORD_CHANNEL_ID` instead
 
 ```bash
 curl -X POST -H "Content-Type: application/json" -d '{"content":"Hello, world!"}' "http://discord-deliver/{channel_id}"
@@ -35,7 +35,7 @@ Request body (JSON, `Content-Type` must be `application/json`, optionally with p
 The response is `{"status": true, "response": ...}` on success. On failure it is `{"status": false, "message": ...}` with one of these HTTP status codes:
 
 - 400: empty request body
-- 404: the URL has no valid channel ID and `DISCORD_CHANNEL_ID` is not set
+- 404: the URL path is invalid, or no valid channel ID is available from the URL or `DISCORD_CHANNEL_ID`
 - 405: method other than `POST`
 - 415: `Content-Type` is not `application/json`
 - 500: `DISCORD_TOKEN` is not set

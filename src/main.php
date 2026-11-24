@@ -30,15 +30,23 @@ if (!$DISCORD_TOKEN) {
 // Discord Channel Id
 $requestUrl = substr($_SERVER['REQUEST_URI'], 1);
 $ENV_DISCORD_CHANNEL_ID = getenv("DISCORD_CHANNEL_ID");
-$isChannelIdIncludeUrl = !empty($requestUrl) && strpos($requestUrl, '/') === false && is_numeric($requestUrl);
-if (!$isChannelIdIncludeUrl && !$ENV_DISCORD_CHANNEL_ID) {
+$requestPath = explode('?', $requestUrl, 2)[0];
+if ($requestPath !== '' && !preg_match('/\A[0-9]+\z/', $requestPath)) {
     http_response_code(404);
     exit(json_encode([
       "status" => false,
       "message" => "Invalid request"
     ]));
 }
-$DISCORD_CHANNEL_ID = $isChannelIdIncludeUrl ? $requestUrl : $ENV_DISCORD_CHANNEL_ID;
+$isChannelIdIncludeUrl = $requestPath !== '' && strpos($requestUrl, '?') === false;
+$DISCORD_CHANNEL_ID = $isChannelIdIncludeUrl ? $requestPath : $ENV_DISCORD_CHANNEL_ID;
+if ($DISCORD_CHANNEL_ID === false || $DISCORD_CHANNEL_ID === '' || !preg_match('/\A[0-9]+\z/', $DISCORD_CHANNEL_ID)) {
+    http_response_code(404);
+    exit(json_encode([
+      "status" => false,
+      "message" => "Invalid request"
+    ]));
+}
 
 // Get message
 $input = file_get_contents("php://input");
