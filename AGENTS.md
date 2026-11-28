@@ -25,7 +25,7 @@ discord-deliver is a small web server that forwards JSON `POST` requests to the 
 - `src/Dockerfile`, `src/entrypoint.sh`: `php:8-alpine` image; the entrypoint runs `php -S 0.0.0.0:80 main.php`.
 - `docker-compose.yml`: compose file using the published image `book000/discord-deliver`.
 - `example/`: compose setup with a curl client that posts two messages (needs `discord-deliver.env` and `example.env`).
-- `.github/workflows/`: `docker-image.yml` (build check on push and PR), `shell-ci.yml` (ShellCheck, excludes SC2086 and SC2001), `docker-publish.yml` (multi-arch image push to Docker Hub on release).
+- `.github/workflows/`: `docker-image.yml` (build and PHP checks on push and PR), `php-tests.yml` (reusable PHP syntax and behavior checks), `shell-ci.yml` (ShellCheck, excludes SC2086 and SC2001), `docker-publish.yml` (PHP checks followed by a multi-arch image push to Docker Hub on release).
 
 ## Commands
 
@@ -34,8 +34,9 @@ There is no `package.json` or linter config.
 ```bash
 docker build src/ -t discord-deliver   # same as CI build check
 shellcheck -e SC2086,SC2001 src/entrypoint.sh example/src/entrypoint.sh
-php -l src/main.php                    # syntax check, if PHP is installed
+for file in src/*.php tests/*.php; do php -l "$file"; done
 php tests/channel-id.php               # channel ID regression tests
+php tests/requests.php                 # request behavior tests with fake transport
 cd example && docker compose up        # manual end-to-end check against real Discord
 ```
 

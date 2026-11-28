@@ -12,6 +12,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  php-tests:
+    uses: ./.github/workflows/php-tests.yml
+
   build:
     runs-on: ubuntu-latest
 

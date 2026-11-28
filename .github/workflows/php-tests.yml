@@ -1,0 +1,21 @@
+name: PHP tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check PHP syntax and behavior
+        run: |
+          docker run --rm -v "$PWD:/app:ro" -w /app php:8-alpine sh -c '
+            set -e
+            for file in src/*.php tests/*.php; do php -l "$file"; done
+            php tests/channel-id.php
+            php tests/requests.php
+          '
